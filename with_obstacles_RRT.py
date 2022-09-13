@@ -8,7 +8,7 @@ import networkx as nx
 import pylab as pl
 
 class RRT_with_obstacle:
-    def __init__(self, domain_w=100, domain_h=100, delta=1, init_pos=(50.0,50.0), k=5000, obstacle_amount = 20):
+    def __init__(self, domain_w=100, domain_h=100, delta=1, init_pos=(50.0,50.0), k=5000, obstacle_amount = 40):
         # self.domain = [[0 for _ in range(domain_w)] for _ in range(domain_h)]
         self.domain_w = domain_w
         self.domain_h = domain_h
@@ -41,7 +41,7 @@ class RRT_with_obstacle:
                 break
     
     def generate_obstacles(self, amount):
-        max_radius = math.ceil(min(self.domain_w, self.domain_h)/20)
+        max_radius = math.ceil(min(self.domain_w, self.domain_h)/10)
         min_radius = math.ceil(min(self.domain_w, self.domain_h)/100)
         obstacles = []
         for i in range(amount):
@@ -97,15 +97,19 @@ class RRT_with_obstacle:
                 if neighbour:
                     lines.append([vertex, neighbour])
         # length = [len(e) for e in lines]
-        print(lines[0])
-        #print(lines)
+        # print(lines[0])
+        # print(lines)
         lc = LineCollection(lines)
         fig,ax = pl.subplots()
+
+        for obstacle in self.obstacles:
+            circle = plt.Circle(obstacle[0], obstacle[1], color='k')
+            ax.add_patch(circle)
         ax.add_collection(lc)
         ax.autoscale()
         ax.margins(0.1)
         plt.show()
         
 my_RRT = RRT_with_obstacle()
-my_RRT.build_tree()
+# my_RRT.build_tree()
 my_RRT.visualize_tree()
