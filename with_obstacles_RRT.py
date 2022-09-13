@@ -34,7 +34,7 @@ class RRT_with_obstacle:
             y0 = random.randint(0,self.domain_h-1)
             closest = self.find_closest_vertex((x0,y0))
             new_vertex = self.extend_vertex_towards(closest, (x0,y0))
-            if self.check_goal(new_vertex):
+            if new_vertex and self.check_goal(new_vertex):
                 '''
                 FIND PATH and color code it, traverse back from goal to start location
                 '''
@@ -64,7 +64,7 @@ class RRT_with_obstacle:
     def check_goal(self, vertex):
         # check if there is a collision free path from vertex to goal
         # if so, terminate
-        return False
+        return not self.collition_detection_line(vertex, self.goal)
 
     def find_closest_vertex(self, vertex):
         min_distance = float("inf")
@@ -80,27 +80,26 @@ class RRT_with_obstacle:
         return math.sqrt((vertex2[0]-vertex1[0])**2+(vertex2[1]-vertex1[1])**2)
 
     def extend_vertex_towards(self, root, random_vertex):
-        '''
-        TODO: COLLESION CHECKING
-        '''
         vector_mag = self.find_distance(root, random_vertex)
         new_vertex = ((random_vertex[0]-root[0])/vector_mag + root[0],(random_vertex[1]-root[1])/vector_mag + root[1])
         self.tree[root].append(new_vertex)
         self.tree[new_vertex].append(root)
-        return new_vertex
+        if not self.collition_detection_line(root, new_vertex):
+            return new_vertex
+        else:
+            return None
     
     def visualize_tree(self):
         lines = []
-        # print(self.tree)
         for vertex in self.tree:
             for neighbour in self.tree[vertex]:
                 if neighbour:
                     lines.append([vertex, neighbour])
-        # length = [len(e) for e in lines]
-        # print(lines[0])
-        # print(lines)
         lc = LineCollection(lines)
         fig,ax = pl.subplots()
+        '''
+        TODO: mark start, goal, and path with different colors
+        '''
 
         for obstacle in self.obstacles:
             circle = plt.Circle(obstacle[0], obstacle[1], color='k')
