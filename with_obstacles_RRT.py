@@ -17,16 +17,19 @@ class RRT_with_obstacle:
         self.k = k
         # let's experiment with an adjecency list first
         self.tree = collections.defaultdict(list)
-        self.tree[self.init_pos].append(None)
         self.obstacles = self.generate_obstacles(obstacle_amount)
         start_finished = False
         while not start_finished:
             self.start = (random.randint(0, self.domain_w), random.randint(0,self.domain_h))
             start_finished = not self.collision_detection_dot(self.start)
+        self.tree[self.start].append(None)
         goal_finished = False
         while not goal_finished:
             self.goal = (random.randint(0, self.domain_w), random.randint(0,self.domain_h))
             goal_finished = not self.collision_detection_dot(self.goal)
+        self.finish_point = None
+        self.path = []
+        self.visited = set()
     
     def build_tree(self):
         for i in range(self.k):
@@ -35,6 +38,9 @@ class RRT_with_obstacle:
             closest = self.find_closest_vertex((x0,y0))
             new_vertex = self.extend_vertex_towards(closest, (x0,y0))
             if new_vertex and self.check_goal(new_vertex):
+                self.finish_point = new_vertex
+                self.recursive_path_finder(new_vertex, [])
+                self.path.append((self.finish_point, self.goal))
                 '''
                 FIND PATH and color code it, traverse back from goal to start location
                 '''
@@ -57,15 +63,27 @@ class RRT_with_obstacle:
     
     def collition_detection_line(self, vertex1, vertex2):
         for center, radius in self.obstacles:
-            if self.min_distance(vertex1,vertex2,center)<radius:
+            if self.min_distance(vertex1,vertex2,center) < radius:
                 return True
         return False
 
-    def recursive_path_finder(self, curr_node):
+    def recursive_path_finder(self, curr_node, path):
         '''
         recursively find path from goal back to start
         '''
-        pass
+        if curr_node:
+            path = path[:]
+            # path.append(curr_node)
+            if curr_node == self.start:
+                self.path = path
+                return
+            self.visited.add(curr_node)
+            for neighbour in self.tree[curr_node]:
+                if neighbour not in self.visited:
+                    path.append((curr_node, neighbour))
+                    self.recursive_path_finder(neighbour, path)
+
+
     
     def check_goal(self, vertex):
         # check if there is a collision free path from vertex to goal
@@ -88,14 +106,14 @@ class RRT_with_obstacle:
     def extend_vertex_towards(self, root, random_vertex):
         vector_mag = self.find_distance(root, random_vertex)
         new_vertex = ((random_vertex[0]-root[0])/vector_mag + root[0],(random_vertex[1]-root[1])/vector_mag + root[1])
-        self.tree[root].append(new_vertex)
-        self.tree[new_vertex].append(root)
         if not self.collition_detection_line(root, new_vertex):
+            self.tree[root].append(new_vertex)
+            self.tree[new_vertex].append(root)
             return new_vertex
         else:
             return None
     
-    def minDistance(A, B, E):
+    def min_distance(self, A, B, E):
         # vector AB
         AB = [None, None]
         AB[0] = B[0] - A[0]
@@ -145,6 +163,9 @@ class RRT_with_obstacle:
                 if neighbour:
                     lines.append([vertex, neighbour])
         lc = LineCollection(lines)
+
+        path_lc = LineCollection(self.path, color=(1,0,0,1))
+
         fig,ax = pl.subplots()
         '''
         TODO: mark start, goal, and path with different colors
@@ -153,7 +174,13 @@ class RRT_with_obstacle:
         for obstacle in self.obstacles:
             circle = plt.Circle(obstacle[0], obstacle[1], color='k')
             ax.add_patch(circle)
+
+        # mark start and goal
+        plt.plot(self.start[0], self.start[1], "o")
+        plt.plot(self.goal[0], self.goal[1], "x")
+
         ax.add_collection(lc)
+        ax.add_collection(path_lc)
         ax.autoscale()
         ax.margins(0.1)
         plt.show()
