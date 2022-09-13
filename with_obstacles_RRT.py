@@ -50,10 +50,16 @@ class RRT_with_obstacle:
         return obstacles
     
     def collision_detection_dot(self, vertex):
-        pass
+        for center, radius in self.obstacles:
+            if self.find_distance(center, vertex) < radius:
+                return True
+        return False
     
     def collition_detection_line(self, vertex1, vertex2):
-        pass
+        for center, radius in self.obstacles:
+            if self.min_distance(vertex1,vertex2,center)<radius:
+                return True
+        return False
 
     def recursive_path_finder(self, curr_node):
         '''
@@ -89,6 +95,49 @@ class RRT_with_obstacle:
         else:
             return None
     
+    def minDistance(A, B, E):
+        # vector AB
+        AB = [None, None]
+        AB[0] = B[0] - A[0]
+        AB[1] = B[1] - A[1]
+        # vector BP
+        BE = [None, None]
+        BE[0] = E[0] - B[0]
+        BE[1] = E[1] - B[1]
+        # vector AP
+        AE = [None, None]
+        AE[0] = E[0] - A[0]
+        AE[1] = E[1] - A[1]
+        # Variables to store dot product
+        # Calculating the dot product
+        AB_BE = AB[0] * BE[0] + AB[1] * BE[1]
+        AB_AE = AB[0] * AE[0] + AB[1] * AE[1]
+        # Minimum distance from
+        # point E to the line segment
+        reqAns = 0
+        # Case 1
+        if (AB_BE > 0) :
+    
+            # Finding the magnitude
+            y = E[1] - B[1]
+            x = E[0] - B[0]
+            reqAns = math.sqrt(x * x + y * y)
+        # Case 2
+        elif (AB_AE < 0) :
+            y = E[1] - A[1]
+            x = E[0] - A[0]
+            reqAns = math.sqrt(x * x + y * y)
+        # Case 3
+        else:
+            # Finding the perpendicular distance
+            x1 = AB[0]
+            y1 = AB[1]
+            x2 = AE[0]
+            y2 = AE[1]
+            mod = math.sqrt(x1 * x1 + y1 * y1)
+            reqAns = abs(x1 * y2 - y1 * x2) / mod
+        return reqAns
+
     def visualize_tree(self):
         lines = []
         for vertex in self.tree:
@@ -110,5 +159,5 @@ class RRT_with_obstacle:
         plt.show()
         
 my_RRT = RRT_with_obstacle()
-# my_RRT.build_tree()
+my_RRT.build_tree()
 my_RRT.visualize_tree()
