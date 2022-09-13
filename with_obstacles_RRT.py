@@ -8,7 +8,7 @@ import networkx as nx
 import pylab as pl
 
 class RRT_with_obstacle:
-    def __init__(self, domain_w=100, domain_h=100, delta=1, init_pos=(50.0,50.0), k=5000):
+    def __init__(self, domain_w=100, domain_h=100, delta=1, init_pos=(50.0,50.0), k=5000, obstacle_amount = 20):
         # self.domain = [[0 for _ in range(domain_w)] for _ in range(domain_h)]
         self.domain_w = domain_w
         self.domain_h = domain_h
@@ -18,9 +18,15 @@ class RRT_with_obstacle:
         # let's experiment with an adjecency list first
         self.tree = collections.defaultdict(list)
         self.tree[self.init_pos].append(None)
-        '''
-        TODO: self.obstacles, self.start(cannot be in obstacles), self.goal(cannot be in obstacles) 
-        '''
+        self.obstacles = self.generate_obstacles(obstacle_amount)
+        start_finished = False
+        while not start_finished:
+            self.start = (random.randint(0, self.domain_w), random.randint(0,self.domain_h))
+            start_finished = not self.collision_detection_dot(self.start)
+        goal_finished = False
+        while not goal_finished:
+            self.goal = (random.randint(0, self.domain_w), random.randint(0,self.domain_h))
+            goal_finished = not self.collision_detection_dot(self.goal)
     
     def build_tree(self):
         for i in range(self.k):
@@ -35,10 +41,13 @@ class RRT_with_obstacle:
                 break
     
     def generate_obstacles(self, amount):
-        '''
-        generate obstacles
-        '''
-        pass
+        max_radius = math.ceil(min(self.domain_w, self.domain_h)/20)
+        min_radius = math.ceil(min(self.domain_w, self.domain_h)/100)
+        obstacles = []
+        for i in range(amount):
+            obstacle = [(random.randint(0, self.domain_w), random.randint(0,self.domain_h)), random.randint(min_radius, max_radius)]
+            obstacles.append(obstacle)
+        return obstacles
     
     def collision_detection_dot(self, vertex):
         pass
