@@ -20,7 +20,7 @@ class GraphVisualization:
         plt.show()
 
 class RRT:
-    def __init__(self, domain_w=100, domain_h=100, delta=1, init_pos=(50.0,50.0), k=5000):
+    def __init__(self, domain_w=100, domain_h=100, delta=1, init_pos=(50.0,50.0), k=500):
         self.domain = [[0 for _ in range(domain_w)] for _ in range(domain_h)]
         self.domain_w = domain_w
         self.domain_h = domain_h

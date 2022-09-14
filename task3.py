@@ -164,7 +164,7 @@ class RRT_with_image:
         plt.show()
 
 def main():
-    my_RRT = RRT_with_image(file_name="greyscale.png")
+    my_RRT = RRT_with_image(file_name="grayscale.png")
     my_RRT.build_tree()
     my_RRT.visualize_tree()
 
