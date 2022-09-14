@@ -14,7 +14,6 @@ class RRT_with_image:
         where_1 = np.where(self.image == 1)
         self.image[where_0] = 1
         self.image[where_1] = 0
-        # self.image = np.flipud(self.image)
         shape = self.image.shape
         self.domain_w, self.domain_h = shape
         self.delta = 1
@@ -49,13 +48,9 @@ class RRT_with_image:
                 self.finish_point = new_vertex
                 self.recursive_path_finder(new_vertex, [])
                 self.path.append((self.finish_point, self.goal))
-                '''
-                FIND PATH and color code it, traverse back from goal to start location
-                '''
                 break
     
     def collision_detection_dot(self, vertex):
-        # print(self.image[vertex[0]][vertex[1]])
         return self.image[vertex[0]][vertex[1]]
 
     def in_range_horizontal(self, num):
@@ -65,9 +60,6 @@ class RRT_with_image:
         return num >= 0 and num < self.domain_h
 
     def collision_detection_line(self, vertex1, vertex2):
-        '''
-        TODO
-        '''
         if vertex2[0] < vertex1[0]:
             vertex1, vertex2 = vertex2, vertex1
         x1,y1 = vertex1
@@ -90,16 +82,17 @@ class RRT_with_image:
         if y2 < y1:
             y1,y2 = y2,y1
         for y in np.arange(y1, y2+1, 0.1):
-            x = (y-c)/m
-            if x>=0 and x<self.domain_w and y>=0 and y<self.domain_h:
-                if self.in_range_horizontal(math.ceil(x)) and self.in_range_vertical(math.ceil(y)) and self.image[math.ceil(x)][math.ceil(y)] == 1:
-                    return True
-                if self.in_range_horizontal(math.floor(x)) and self.in_range_vertical(math.floor(y)) and self.image[math.floor(x)][math.floor(y)] == 1:
-                    return True
-                if self.in_range_horizontal(math.ceil(x)) and self.in_range_vertical(math.floor(y)) and self.image[math.ceil(x)][math.floor(y)] == 1:
-                    return True
-                if self.in_range_horizontal(math.floor(x)) and self.in_range_vertical(math.ceil(y)) and self.image[math.floor(x)][math.ceil(y)] == 1:
-                    return True
+            if m!=0:
+                x = (y-c)/m
+                if x>=0 and x<self.domain_w and y>=0 and y<self.domain_h:
+                    if self.in_range_horizontal(math.ceil(x)) and self.in_range_vertical(math.ceil(y)) and self.image[math.ceil(x)][math.ceil(y)] == 1:
+                        return True
+                    if self.in_range_horizontal(math.floor(x)) and self.in_range_vertical(math.floor(y)) and self.image[math.floor(x)][math.floor(y)] == 1:
+                        return True
+                    if self.in_range_horizontal(math.ceil(x)) and self.in_range_vertical(math.floor(y)) and self.image[math.ceil(x)][math.floor(y)] == 1:
+                        return True
+                    if self.in_range_horizontal(math.floor(x)) and self.in_range_vertical(math.ceil(y)) and self.image[math.floor(x)][math.ceil(y)] == 1:
+                        return True
         return False
     
     def recursive_path_finder(self, curr_node, path):
@@ -108,7 +101,6 @@ class RRT_with_image:
         '''
         if curr_node:
             path = path[:]
-            # path.append(curr_node)
             if curr_node == self.start:
                 self.path = path
                 return
@@ -117,8 +109,6 @@ class RRT_with_image:
                 if neighbour not in self.visited:
                     path.append((curr_node, neighbour))
                     self.recursive_path_finder(neighbour, path)
-
-
     
     def check_goal(self, vertex):
         # check if there is a collision free path from vertex to goal
@@ -149,7 +139,6 @@ class RRT_with_image:
             return None
 
     def visualize_tree(self):
-        print(self.image)
         lines = []
         for vertex in self.tree:
             for neighbour in self.tree[vertex]:
@@ -164,13 +153,7 @@ class RRT_with_image:
         plt.plot(self.start[0], self.start[1], "o")
         plt.plot(self.goal[0], self.goal[1], "x")
 
-        '''
-        for i in range(self.domain_w):
-            for j in range(self.domain_h):
-                if self.image[i][j]==1:
-                    plt.plot(i, j, "s")
-        '''
-        plt.imshow(self.image.T, origin="lower")
+        plt.imshow(self.image.T, origin="lower", cmap="gray")
 
         ax.add_collection(lc)
         ax.add_collection(path_lc)
@@ -179,7 +162,11 @@ class RRT_with_image:
         ax.set_ylim(0,self.domain_h)
         ax.margins(0.1)
         plt.show()
-        
-my_RRT = RRT_with_image(file_name="greyscale.png")
-my_RRT.build_tree()
-my_RRT.visualize_tree()
+
+def main():
+    my_RRT = RRT_with_image(file_name="greyscale.png")
+    my_RRT.build_tree()
+    my_RRT.visualize_tree()
+
+if __name__ == "__main__":
+    main()
