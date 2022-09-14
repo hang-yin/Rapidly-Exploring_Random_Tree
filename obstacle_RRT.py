@@ -57,7 +57,13 @@ class RRT_with_image:
     def collision_detection_dot(self, vertex):
         # print(self.image[vertex[0]][vertex[1]])
         return self.image[vertex[0]][vertex[1]]
+
+    def in_range_horizontal(self, num):
+        return num >= 0 and num < self.domain_w
     
+    def in_range_vertical(self, num):
+        return num >= 0 and num < self.domain_h
+
     def collision_detection_line(self, vertex1, vertex2):
         '''
         TODO
@@ -66,12 +72,33 @@ class RRT_with_image:
             vertex1, vertex2 = vertex2, vertex1
         x1,y1 = vertex1
         x2,y2 = vertex2
+        if (x2-x1)==0:
+            return True
         m = (y2-y1)/(x2-x1)
         c = y1 - m*x1
-        for x in range(int(x1), int(x2+1)):
-            y = int(m*x + c)
+        for x in np.arange(x1, x2+1, 0.1):
+            y = m*x + c
             if x>=0 and x<self.domain_w and y>=0 and y<self.domain_h:
-                if self.image[x][y] == 1:
+                if self.in_range_horizontal(math.ceil(x)) and self.in_range_vertical(math.ceil(y)) and self.image[math.ceil(x)][math.ceil(y)] == 1:
+                    return True
+                if self.in_range_horizontal(math.floor(x)) and self.in_range_vertical(math.floor(y)) and self.image[math.floor(x)][math.floor(y)] == 1:
+                    return True
+                if self.in_range_horizontal(math.ceil(x)) and self.in_range_vertical(math.floor(y)) and self.image[math.ceil(x)][math.floor(y)] == 1:
+                    return True
+                if self.in_range_horizontal(math.floor(x)) and self.in_range_vertical(math.ceil(y)) and self.image[math.floor(x)][math.ceil(y)] == 1:
+                    return True
+        if y2 < y1:
+            y1,y2 = y2,y1
+        for y in np.arange(y1, y2+1, 0.1):
+            x = (y-c)/m
+            if x>=0 and x<self.domain_w and y>=0 and y<self.domain_h:
+                if self.in_range_horizontal(math.ceil(x)) and self.in_range_vertical(math.ceil(y)) and self.image[math.ceil(x)][math.ceil(y)] == 1:
+                    return True
+                if self.in_range_horizontal(math.floor(x)) and self.in_range_vertical(math.floor(y)) and self.image[math.floor(x)][math.floor(y)] == 1:
+                    return True
+                if self.in_range_horizontal(math.ceil(x)) and self.in_range_vertical(math.floor(y)) and self.image[math.ceil(x)][math.floor(y)] == 1:
+                    return True
+                if self.in_range_horizontal(math.floor(x)) and self.in_range_vertical(math.ceil(y)) and self.image[math.floor(x)][math.ceil(y)] == 1:
                     return True
         return False
     
@@ -137,13 +164,13 @@ class RRT_with_image:
         plt.plot(self.start[0], self.start[1], "o")
         plt.plot(self.goal[0], self.goal[1], "x")
 
-        
+        '''
         for i in range(self.domain_w):
             for j in range(self.domain_h):
                 if self.image[i][j]==1:
                     plt.plot(i, j, "s")
-        
-        # plt.imshow(self.image, origin="lower")
+        '''
+        plt.imshow(self.image.T, origin="lower")
 
         ax.add_collection(lc)
         ax.add_collection(path_lc)
