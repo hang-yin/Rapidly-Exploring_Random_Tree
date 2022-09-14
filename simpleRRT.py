@@ -27,7 +27,6 @@ class RRT:
         self.delta = 1
         self.init_pos = init_pos
         self.k = k
-        # let's experiment with an adjecency list first
         self.tree = collections.defaultdict(list)
         self.tree[self.init_pos].append(None)
     
@@ -59,21 +58,21 @@ class RRT:
     
     def visualize_tree(self):
         lines = []
-        # print(self.tree)
         for vertex in self.tree:
             for neighbour in self.tree[vertex]:
                 if neighbour:
                     lines.append([vertex, neighbour])
-        # length = [len(e) for e in lines]
-        print(lines[0])
-        #print(lines)
         lc = LineCollection(lines)
         fig,ax = pl.subplots()
         ax.add_collection(lc)
         ax.autoscale()
         ax.margins(0.1)
         plt.show()
-        
-my_RRT = RRT()
-my_RRT.build_tree()
-my_RRT.visualize_tree()
+
+def main():
+    my_RRT = RRT()
+    my_RRT.build_tree()
+    my_RRT.visualize_tree()
+
+if __name__ == "__main__":
+    main()

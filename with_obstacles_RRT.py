@@ -9,13 +9,11 @@ import pylab as pl
 
 class RRT_with_obstacle:
     def __init__(self, domain_w=100, domain_h=100, delta=1, init_pos=(50.0,50.0), k=5000, obstacle_amount = 40):
-        # self.domain = [[0 for _ in range(domain_w)] for _ in range(domain_h)]
         self.domain_w = domain_w
         self.domain_h = domain_h
         self.delta = 1
         self.init_pos = init_pos
         self.k = k
-        # let's experiment with an adjecency list first
         self.tree = collections.defaultdict(list)
         self.obstacles = self.generate_obstacles(obstacle_amount)
         start_finished = False
@@ -41,9 +39,6 @@ class RRT_with_obstacle:
                 self.finish_point = new_vertex
                 self.recursive_path_finder(new_vertex, [])
                 self.path.append((self.finish_point, self.goal))
-                '''
-                FIND PATH and color code it, traverse back from goal to start location
-                '''
                 break
     
     def generate_obstacles(self, amount):
@@ -163,14 +158,8 @@ class RRT_with_obstacle:
                 if neighbour:
                     lines.append([vertex, neighbour])
         lc = LineCollection(lines)
-
         path_lc = LineCollection(self.path, color=(1,0,0,1))
-
         fig,ax = pl.subplots()
-        '''
-        TODO: mark start, goal, and path with different colors
-        '''
-
         for obstacle in self.obstacles:
             circle = plt.Circle(obstacle[0], obstacle[1], color='k')
             ax.add_patch(circle)
@@ -184,7 +173,11 @@ class RRT_with_obstacle:
         ax.autoscale()
         ax.margins(0.1)
         plt.show()
-        
-my_RRT = RRT_with_obstacle()
-my_RRT.build_tree()
-my_RRT.visualize_tree()
+
+def main():
+    my_RRT = RRT_with_obstacle()
+    my_RRT.build_tree()
+    my_RRT.visualize_tree()
+
+if __name__ == "__main__":
+    main()
